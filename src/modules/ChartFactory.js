@@ -9,15 +9,20 @@ const CHARTS = {
 export default class ChartFactory {
     static create( configObj ) {
         const selectChart = CHARTS[configObj.type];
+        const chartName = configObj.name;
 
         if ( configObj ){
             try{
-                if(selectChart){
+                if(selectChart && chartName){
                     new selectChart( configObj ).spawn;
-                } else {
+                } else if ( selectChart && !chartName ) {
+                    throw 'You must provide a "type:" and "name:" parameter'
+                } else if ( !selectChart && chartName ){
                     throw `We don't have ${configObj.type} charts!`
-                }
-            }catch(err){
+                } else {
+                    throw 'You must provide a "type:" and "name:" parameter'
+                } 
+            } catch(err){
                 console.error( 'ChartFactory -> ', err )
             }
         } else {

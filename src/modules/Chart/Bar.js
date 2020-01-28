@@ -8,7 +8,7 @@ import {colors} from '../../colors.js';
 
 export default class Bar extends Chart {
     constructor( {name, input} ) {
-        super( name, input );
+        super( {name, input} );
         this.chartType = 'bar_chart';
         this.buildMethod = this.init;
         this.input = input;
@@ -42,7 +42,7 @@ export default class Bar extends Chart {
         const maxVal = Math.max.apply( Math, valArray );
 
         /* Bar scaling/position */
-        const barW = Math.round( canvas.width / keyArray.length );
+        const barW = Math.floor( canvas.width / keyArray.length );
         const maxH = canvas.height;
 
         /* The loop */
@@ -62,6 +62,8 @@ export default class Bar extends Chart {
             ctx.fillText( `${key}`, center, yOffset );
 
         }
+
+        console.log(`Bar width -> ${this.name} -> `, barW);
     }
 
     init() {

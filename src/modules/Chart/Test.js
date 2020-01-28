@@ -6,7 +6,7 @@ import Chart from '../Chart.js';
 
 export default class Test extends Chart {
     constructor( {name} ) {
-        super( name );
+        super( {name} );
         this.chartType = 'test_chart';
         this.buildMethod = this.init;
     }
@@ -36,3 +36,5 @@ export default class Test extends Chart {
         this.testGen();
     }
 }
+
+// http://cssdeck.com/labs/emcxdwuz
