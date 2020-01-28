@@ -1,18 +1,14 @@
 import Chart from '../Chart.js';
-import {colors} from '../../colors.js';
-
 
 /* 
     Child class: 'Bar'
 */
 
 export default class Test extends Chart {
-    constructor( name, targetId ) {
+    constructor( {name} ) {
         super( name );
         this.chartType = 'test_chart';
-        this.targetId = targetId;
         this.buildMethod = this.init;
-        this.sortedInput = undefined;
     }
 
     //  Method - build

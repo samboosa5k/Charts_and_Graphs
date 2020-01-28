@@ -7,10 +7,9 @@ import {colors} from '../../colors.js';
 */
 
 export default class Bar extends Chart {
-    constructor( name, input, targetId ) {
+    constructor( {name, input} ) {
         super( name, input );
         this.chartType = 'bar_chart';
-        this.targetId = targetId;
         this.buildMethod = this.init;
         this.input = input;
         this.sortedInput = undefined;
@@ -68,6 +67,5 @@ export default class Bar extends Chart {
     init() {
         this.sortBy( 'count' );
         this.barGen();
-        console.log(this.input, this.sortedInput);
     }
 }
