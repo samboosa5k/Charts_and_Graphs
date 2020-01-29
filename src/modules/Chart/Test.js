@@ -29,7 +29,7 @@ export default class Test extends Chart {
         ctx.fillStyle = barColor;
         ctx.fillRect( 100,100,100,100 );
 
-        console.log( `${xOffset}    ${yOffset}    ${barW}     ${barH}`);
+        console.log( `x: ${xOffset} y: ${yOffset} w: ${barW} h: ${barH}`);
     }
 
     init() {

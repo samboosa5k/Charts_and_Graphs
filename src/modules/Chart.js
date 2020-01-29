@@ -45,7 +45,7 @@ export default class Chart {
             chart_type: this.chartType,
             input_type: this.inputType,
             input: this.input,
-            targe: this.target
+            target: this.target
         }
     }
 
