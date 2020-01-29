@@ -39,24 +39,34 @@ export default class Chart {
         }
     }
 
-    collectInfo() {
-        return {
-            name: this.name,
-            chart_type: this.chartType,
-            input_type: this.inputType,
-            input: this.input,
-            target: this.target
-        }
+    refreshChart() {
+        const currentCanvas = document.getElementById(this.name);
+        const ctx = currentCanvas.getContext('2d');
+        //  Clear canvas
+        ctx.clearRect( 0, 0, currentCanvas.width, currentCanvas.height );
+        //  Rebuild
+        this.buildMethod();
+
+        //  Logging the refreshed target dimensions
+        //  console.log( 'Target width: ', this.target.offsetWidth);        
+        //  console.log( 'Target height: ', this.target.offsetHeight);    
+    }
+
+    monitorResize(){
+        window.addEventListener('resize', ()=>this.refreshChart());
     }
 
     //  Getters
-    get about() {
-        return this.collectInfo();
-    }
-
     get spawn() {
         this.build();
+        this.monitorResize();
     }
 }
 
+//  Find out where to add a 'refresh/redraw' function,
+//  which triggers when 'target' resizes
+//  Event listener ->
+//      -> Should be added to target
+//      -> on target resize -> canvas.height & canvas.width should be 'refreshed'
+//                          -> this.buildMethod() should be called again
 
