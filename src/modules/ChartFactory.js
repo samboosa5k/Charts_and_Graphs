@@ -1,20 +1,32 @@
+import Test from './Chart/Test.js';
 import Bar from './Chart/Bar.js';
 
 const CHARTS = {
+    Test,
     Bar
 }
 
 export default class ChartFactory {
-    factoryError( error ) {
-        console.error( 'ChartFactory: ', `We don't have ${error} charts!` )
-    }
+    static create( configObj ) {
+        const selectChart = CHARTS[configObj.type];
+        const chartName = configObj.name;
 
-    static create( dataObj ) {
-        const chartCreator = CHARTS[dataObj.type];
-        const chart = ( chartCreator ) ? new chartCreator( dataObj.name, dataObj.input, undefined ) : this.factoryError( dataObj.type );
-
-        return chart;
+        if ( configObj ){
+            try{
+                if(selectChart && chartName){
+                    new selectChart( configObj ).spawn;
+                } else if ( selectChart && !chartName ) {
+                    throw 'You must provide a "type:" and "name:" parameter'
+                } else if ( !selectChart && chartName ){
+                    throw `We don't have ${configObj.type} charts!`
+                } else {
+                    throw 'You must provide a "type:" and "name:" parameter'
+                } 
+            } catch(err){
+                console.error( 'ChartFactory -> ', err )
+            }
+        } else {
+            console.error('ChartFactory -> ', 'No chart parameters provided!');
+        }
     }
 }
-
-window.ChartCreate = ChartFactory.create;

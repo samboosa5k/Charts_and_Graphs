@@ -9,12 +9,12 @@
 */
 
 export default class Chart {
-    constructor( name, input ) {
+    constructor( {name, input, target} ) {
         this.name = name;
+        this.input = input;
         this.chartType = undefined;
         this.buildMethod = undefined;
-        this.targetId = undefined;
-        this.input = input;
+        this.target = document.querySelector('#test_target');
         this.output = undefined;
     }
 
@@ -22,12 +22,12 @@ export default class Chart {
     createCanvas() {
         const canvas = document.createElement( 'canvas' );
         canvas.id = this.name;
-        canvas.width = 1280;
-        canvas.height = 720;
+        canvas.width = this.target.offsetWidth;
+        canvas.height = this.target.offsetHeight;
         canvas.style.zIndex = 999;
         canvas.style.position = 'relative';
 
-        document.body.appendChild( canvas );
+        this.target.appendChild( canvas );
     }
 
     build() {
@@ -45,7 +45,7 @@ export default class Chart {
             chart_type: this.chartType,
             input_type: this.inputType,
             input: this.input,
-            target_id: this.targetId
+            target: this.target
         }
     }
 

@@ -1,18 +1,14 @@
 import Chart from '../Chart.js';
-import {colors} from '../../colors.js';
-
 
 /* 
     Child class: 'Bar'
 */
 
 export default class Test extends Chart {
-    constructor( name, targetId ) {
-        super( name );
+    constructor( {name} ) {
+        super( {name} );
         this.chartType = 'test_chart';
-        this.targetId = targetId;
         this.buildMethod = this.init;
-        this.sortedInput = undefined;
     }
 
     //  Method - build
@@ -33,10 +29,12 @@ export default class Test extends Chart {
         ctx.fillStyle = barColor;
         ctx.fillRect( 100,100,100,100 );
 
-        console.log( `${xOffset}    ${yOffset}    ${barW}     ${barH}`);
+        console.log( `x: ${xOffset} y: ${yOffset} w: ${barW} h: ${barH}`);
     }
 
     init() {
         this.testGen();
     }
 }
+
+// http://cssdeck.com/labs/emcxdwuz
