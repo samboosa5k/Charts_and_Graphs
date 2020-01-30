@@ -19,7 +19,19 @@ const init = () => {
 init();
 
 /* Test Spawn */
+//  1. Test data
+const testData = [
+    {key: 'product_1', count: 12},
+    {key: 'product_2', count: 33},
+    {key: 'product_3', count: 55},
+    {key: 'product_4', count: 78},
+    {key: 'product_5', count: 100},
+    {key: 'product_6', count: 122},
+    {key: 'product_7', count: 134},
+];
+
+//  2. Event listener to spawn chart
 document.addEventListener('DOMContentLoaded',()=>{
-    ChartCreate( { type: 'Test', name: 'test-chart' } );
+    ChartCreate( { type: 'Bar', name: 'test-bar-chart', input: testData } );
 })
 
