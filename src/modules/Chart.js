@@ -15,75 +15,72 @@ export default class Chart {
         this.chartType = undefined;
         this.buildChartMethod = undefined;
         this.target = document.querySelector('#test_target');
+        this.newCanvas = document.createElement( 'canvas' );
         this.canvas = undefined;
         this.ctx = undefined;
-        this.output = undefined;
     }
 
-    //  Methods
-    createCanvas() {
-        const canvas = document.createElement( 'canvas' );
-        canvas.id = this.name;
-        canvas.width = this.target.offsetWidth;
-        canvas.height = this.target.offsetHeight;
-        canvas.style.zIndex = 999;
-        canvas.style.position = 'relative';
-        this.target.appendChild( canvas );
+    //  Methods - Canvas
+    _clearCanvas() {
+        this.ctx.clearRect( 0, 0, this.canvas.width, this.canvas.height );
     }
 
-    instantiateCanvas(){
-        this.canvas = document.getElementById( this.name );
-        this.ctx = this.canvas.getContext( '2d' );
-    }
+    _createCanvas(option) {
+        const refresh = (option === 'refresh') ? true : false;
+        const canvasTarget = (refresh) ? this.canvas : this.newCanvas;
 
-    drawTitle(){
-        let fontSize = 12;
-        let center = this.canvas.width / 2 - ( this.ctx.measureText( this.name ).width / 2 );
-        let xPos = center;
-        let yPos = fontSize;
-        this.ctx.font = `12px Arial`;
-        this.ctx.fillStyle = 'black'
-        this.ctx.fillText( `${this.name}`, xPos, yPos );
-        console.log(yPos);
-    }
-
-    buildChart() {
-        try {
-            this.createCanvas();
-            this.instantiateCanvas();
-            this.drawTitle();
-            this.buildChartMethod();
-        } catch ( err ) {
-            console.error( 'Build failed: ', err );
+        if(refresh){
+            canvasTarget.width = this.target.offsetWidth;
+            canvasTarget.height = this.target.offsetHeight;
+        } else {
+            // Set New Canvas properties
+            canvasTarget.id = this.name;
+            canvasTarget.width = this.target.offsetWidth;
+            canvasTarget.height = this.target.offsetHeight;
+            canvasTarget.style.zIndex = 999;
+            canvasTarget.style.position = 'relative';
+            // Append to target container
+            this.target.appendChild( canvasTarget );
+            // Instantiate canvas to child chart
+            this.canvas = document.getElementById( this.name );
+            this.ctx = this.canvas.getContext( '2d' );
         }
     }
 
-    refreshCanvas() {
-        //  Clear canvas
-        this.ctx.clearRect( 0, 0, this.canvas.width, this.canvas.height );
-        //  Re-set canvas dimensions
-        this.canvas.width = this.target.offsetWidth;
-        this.canvas.height = this.target.offsetHeight;
-        //  Rebuild chart with specific buildChartMethod()
-        this.drawTitle();
-        this.buildChartMethod();   
+    //  Methods - Draw chart Interface
+    _drawTitle(){
+        const fontSize = 12;
+        const center = this.canvas.width / 2 - ( this.ctx.measureText( this.name ).width / 2 );
+        const xPos = center;
+        const yPos = fontSize;
+        this.ctx.font = `12px Arial`;
+        this.ctx.fillStyle = 'black'
+        this.ctx.fillText( `${this.name}`, xPos, yPos );
     }
 
-    monitorResize(){
-        window.addEventListener('resize', ()=>this.refreshCanvas());
+    _drawInterface(){
+        this._drawTitle();
     }
 
-    //  Getters
+    //  Methods - Build & Refresh & Monitor-Resize
+    _buildChart(option) {
+        this._createCanvas(option);
+        this._drawInterface();
+        this.buildChartMethod();
+    }
+
+    _refreshChart() {
+        this._clearCanvas();
+        this._buildChart('refresh');   
+    }
+
+    _monitorResize(){
+        window.addEventListener('resize', ()=>this._refreshChart());
+    }
+
+    //  Method - FINAL BUILD
     get spawn() {
-        this.buildChart();
-        this.monitorResize();
+        this._buildChart();
+        this._monitorResize();
     }
 }
-
-//  Find out where to add a 'refresh/redraw' function,
-//  which triggers when 'target' resizes
-//  Event listener ->
-//      -> Should be added to target
-//      -> on target resize -> canvas.height & canvas.width should be 'refreshed'
-//                          -> this.buildChartMethod() should be called again
-

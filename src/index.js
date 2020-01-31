@@ -1,8 +1,10 @@
-import ChartFactory from './modules/ChartFactory.js';
+import {ChartController} from './modules/ChartRegistry.js';
+import {ChartFactory} from './modules/ChartFactory.js';
 
 const binds = () => {
     //  Chart functions
     window.ChartCreate = ChartFactory.create;
+    window.ChartGet = ChartController.access;
 }
 
 const logs = () => {
@@ -13,7 +15,7 @@ const logs = () => {
 
 const init = () => {
     binds();
-    logs();       
+    //logs();       
 }
 
 init();
