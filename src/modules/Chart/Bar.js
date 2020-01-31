@@ -8,7 +8,6 @@ import Chart from '../Chart.js';
 export default class Bar extends Chart {
     constructor( {name, input} ) {
         super( {name, input} );
-        this.chartType = 'bar_chart';
         this.buildChartMethod = this.init;
         this.input = input;
         this.sortedInput = undefined;
