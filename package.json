@@ -4,9 +4,9 @@
   "description": "Vanilla JS Charts and Graphs",
   "main": "./src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --config webpack.config.js --mode production",
-    "watch": "webpack --watch"
+    "watch": "webpack --watch",
+    "start": "webpack-dev-server --config webpack.config.js --hot --open"
   },
   "author": "Jasper Verbon",
   "license": "ISC",
@@ -18,6 +18,7 @@
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "copy-webpack-plugin": "^5.1.1",
     "expose-loader": "^0.7.5",
+    "html-webpack-plugin": "^3.2.0",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10",
     "webpack-dev-server": "^3.9.0"

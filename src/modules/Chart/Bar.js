@@ -1,5 +1,4 @@
 import Chart from '../Chart.js';
-import {colors} from '../../colors.js';
 
 
 /* 
@@ -9,65 +8,115 @@ import {colors} from '../../colors.js';
 export default class Bar extends Chart {
     constructor( {name, input} ) {
         super( {name, input} );
-        this.chartType = 'bar_chart';
-        this.buildMethod = this.init;
-        this.input = input;
-        this.sortedInput = undefined;
+        this.buildChartMethod = this.init;
+        // this.sortedInput = undefined;
+        this.keyArray = this.data.map( obj => { return obj.key } );
+        this.valArray = this.data.map( obj => { return obj.count } );
+        this.maxVal = Math.max.apply( Math, this.valArray );
+        this.yLabelInc = 20;
+        this.yLabelMax = undefined;
+        this.nrLinesMax = undefined;
     }
 
+
     //  Method - sort
-    sortBy( method ) {
+    /* sortBy( method ) {
         switch ( method ) {
             case 'count':
-                console.log( 'sorted' );
-                this.sortedInput = this.input.sort( ( a, b ) => {
+                // console.log( 'sorted' );
+                this.sortedInput = this.data.sort( ( a, b ) => {
                     if ( a.count < b.count ) return -1;
                     if ( a.count > b.count ) return 1;
                 } );
                 break;
         }
+    } */
+    calcGrid(){
+        const gridMax = ( () => {
+            let nrLinesMax = 0;
+            let yLabelMax = 0
+            while ( yLabelMax <= this.maxVal ) {
+                nrLinesMax += 1;
+                yLabelMax += this.yLabelInc;
+            }
+            return {
+                nrLinesMax,
+                yLabelMax
+            }
+        } )();
+        this.nrLinesMax = gridMax.nrLinesMax;
+        this.yLabelMax = gridMax.yLabelMax;
     }
 
-    //  Method - build
-    barGen( inputObject = this.input ) {
-        /* Canvas */
-        const canvas = document.getElementById( this.name );
-        const ctx = canvas.getContext( '2d' );
-        /* Input data */
-        const keyArray = this.sortedInput.map( obj => { return obj.key } );
-        const valArray = this.sortedInput.map( obj => { return obj.count } );
-        const valSum = valArray.reduce( ( a, b ) => {
-            return a + b;
-        } );
-        const maxVal = Math.max.apply( Math, valArray );
+    drawBar(x,y,w,h,color){
+        this.ctx.fillStyle = color;
+        this.ctx.fillRect( x, y, w, h );
+        this.ctx.strokeRect( x, y, w, h );
+    }
 
-        /* Bar scaling/position */
-        const barW = Math.floor( canvas.width / keyArray.length );
-        const maxH = canvas.height;
+    drawLabel(x,y,label){
+        this.ctx.font = `12px Arial`;
+        this.ctx.fillStyle = 'black'
+        this.ctx.fillText( `${label}`, x, y );
+    }
+
+    drawGrid(w,h){
+        const origin = this.style.padding;
+        
+        // Background
+        this.ctx.fillStyle = 'rgba(0,0,0,0.1)';
+        this.ctx.fillRect( origin, origin, w, h );
+        // this.ctx.strokeRect( x, y, w, h );
+
+        // Lines & labels
+        for(let i=0; i<=this.nrLinesMax; i++){
+            let yPos = origin + ( this.CC.height / this.nrLinesMax ) * i;
+            let xPos = origin;
+            let yLabel = this.yLabelMax-(this.yLabelInc*i);
+
+            this.ctx.beginPath();
+            this.ctx.moveTo( xPos, xPos + ( this.CC.height / this.nrLinesMax)*i);
+            this.ctx.lineTo( xPos + this.CC.width, yPos);
+            this.ctx.stroke();
+            this.drawLabel( xPos-24, yPos, yLabel );
+        }
+    }
+
+    //  Method - generate BARS
+    barGen( inputData = this.data ) {
+        const maxW = Math.floor( this.CC.width / inputData.length );
+        const scaleY = this.maxVal/this.yLabelMax;
+        const maxH = this.CC.height * scaleY;
 
         /* The loop */
-        for ( let key of keyArray ) {
-            let xOffset = ( keyArray.indexOf( key ) ) * barW;
-            let barH = ( valArray[keyArray.indexOf( key )] / maxVal ) * maxH;
-            let yOffset = canvas.height - barH;
-            let barColor = colors[Math.round( Math.random() * colors.length )];
-            let center = xOffset + ( barW / 2 ) - ( ctx.measureText( key ).width / 2 );
+           for(let i=0; i<this.keyArray.length; i++){
+            let barColor = 'Lavender';
+            let barW = maxW/2;
+            let barH = (this.valArray[i]/this.maxVal)*maxH;
+
+            let xOffset = (this.style.padding) + (i * maxW);
+            let yOffset = this.CC.height + (this.style.padding) - barH;
+
+            let centerBar = xOffset - (barW / 2) + (maxW / 2);
+            let centerLabel = xOffset - ( this.ctx.measureText( this.keyArray[i] ).width / 2 ) + ( maxW / 2 );
 
             //  bars
-            ctx.fillStyle = barColor;
-            ctx.fillRect( xOffset, yOffset, barW, barH );
+            this.drawBar(centerBar, yOffset, barW, barH, barColor);
+
             //  labels
-            ctx.font = `${barW / 5}px Arial`;
-            ctx.fillStyle = 'black'
-            ctx.fillText( `${key}`, center, yOffset );
-
+            this.drawLabel( centerLabel, this.CC.height + ( this.style.padding ) + 24, this.keyArray[i]);
         }
-
-        console.log(`Bar width -> ${this.name} -> `, barW);
     }
 
+    //  Method - generate GRID
+    layoutGen() {
+        this.calcGrid();
+        this.drawGrid( this.CC.width, this.CC.height );
+    }
+    
     init() {
-        this.sortBy( 'count' );
+        // this.sortBy( 'count' );
+        this.layoutGen();
         this.barGen();
     }
 }
