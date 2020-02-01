@@ -13,8 +13,9 @@ export default class Bar extends Chart {
         this.keyArray = this.data.map( obj => { return obj.key } );
         this.valArray = this.data.map( obj => { return obj.count } );
         this.maxVal = Math.max.apply( Math, this.valArray );
-        this.maxValRnd = undefined;
-        this.multiple = undefined;
+        this.yLabelInc = 20;
+        this.yLabelMax = undefined;
+        this.nrLinesMax = undefined;
     }
 
 
@@ -31,30 +32,20 @@ export default class Bar extends Chart {
         }
     } */
     calcGrid(){
-        const divider = () => {
-            let len = this.maxVal.toString().length;
-            let outVal = '1';
-            for ( let i = 1; i <= len - 1; i++ ) {
-                outVal += '0';
+        const gridMax = ( () => {
+            let nrLinesMax = 0;
+            let yLabelMax = 0
+            while ( yLabelMax <= this.maxVal ) {
+                nrLinesMax += 1;
+                yLabelMax += this.yLabelInc;
             }
-            return parseInt( outVal );
-        }
-        const divided = this.maxVal / divider();
-        const multiple = ( divided - ( ( divided % 1 ) - 0.5 ) ) * 10;
-        // const maxValRnd =  multiple * nrLines;
-
-        const maxValRnd = ( () => {
-            let currentMax = 0;
-
-            while ( currentMax < this.maxVal ) {
-                currentMax += multiple;
+            return {
+                nrLinesMax,
+                yLabelMax
             }
-
-            return currentMax;
         } )();
-
-        this.maxValRnd = maxValRnd;
-        this.multiple = multiple;
+        this.nrLinesMax = gridMax.nrLinesMax;
+        this.yLabelMax = gridMax.yLabelMax;
     }
 
     drawBar(x,y,w,h,color){
@@ -70,7 +61,6 @@ export default class Bar extends Chart {
     }
 
     drawGrid(w,h){
-        const nrLines = this.maxValRnd/this.multiple;
         const origin = this.style.padding;
         
         // Background
@@ -79,13 +69,13 @@ export default class Bar extends Chart {
         // this.ctx.strokeRect( x, y, w, h );
 
         // Lines & labels
-        for(let i=0; i<=nrLines; i++){
-            let yPos = origin + ( this.CC.height / nrLines ) * i;
+        for(let i=0; i<=this.nrLinesMax; i++){
+            let yPos = origin + ( this.CC.height / this.nrLinesMax ) * i;
             let xPos = origin;
-            let yLabel = this.maxValRnd-(this.multiple*i);
+            let yLabel = this.yLabelMax-(this.yLabelInc*i);
 
             this.ctx.beginPath();
-            this.ctx.moveTo( xPos, xPos + (this.CC.height/nrLines)*i);
+            this.ctx.moveTo( xPos, xPos + ( this.CC.height / this.nrLinesMax)*i);
             this.ctx.lineTo( xPos + this.CC.width, yPos);
             this.ctx.stroke();
             this.drawLabel( xPos-24, yPos, yLabel );
@@ -95,7 +85,7 @@ export default class Bar extends Chart {
     //  Method - generate BARS
     barGen( inputData = this.data ) {
         const maxW = Math.floor( this.CC.width / inputData.length );
-        const scaleY = this.maxVal/this.maxValRnd;
+        const scaleY = this.maxVal/this.yLabelMax;
         const maxH = this.CC.height * scaleY;
 
         /* The loop */

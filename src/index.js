@@ -33,7 +33,7 @@ const testInput = {
         {key: 'product_4', count: 22},
         {key: 'product_5', count: 44},
         {key: 'product_6', count: 66},
-        {key: 'product_7', count: 99},
+        {key: 'product_7', count: 193},
     ]
 }
 
