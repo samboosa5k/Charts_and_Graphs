@@ -9,25 +9,52 @@ export default class Bar extends Chart {
     constructor( {name, input} ) {
         super( {name, input} );
         this.buildChartMethod = this.init;
-        this.input = input;
-        this.sortedInput = undefined;
-        this.keyArray = this.input.map( obj => { return obj.key } );
-        this.valArray = this.input.map( obj => { return obj.count } );
+        // this.sortedInput = undefined;
+        this.keyArray = this.data.map( obj => { return obj.key } );
+        this.valArray = this.data.map( obj => { return obj.count } );
         this.maxVal = Math.max.apply( Math, this.valArray );
+        this.maxValRnd = undefined;
+        this.multiple = undefined;
     }
 
 
     //  Method - sort
-    sortBy( method ) {
+    /* sortBy( method ) {
         switch ( method ) {
             case 'count':
                 // console.log( 'sorted' );
-                this.sortedInput = this.input.sort( ( a, b ) => {
+                this.sortedInput = this.data.sort( ( a, b ) => {
                     if ( a.count < b.count ) return -1;
                     if ( a.count > b.count ) return 1;
                 } );
                 break;
         }
+    } */
+    calcGrid(){
+        const divider = () => {
+            let len = this.maxVal.toString().length;
+            let outVal = '1';
+            for ( let i = 1; i <= len - 1; i++ ) {
+                outVal += '0';
+            }
+            return parseInt( outVal );
+        }
+        const divided = this.maxVal / divider();
+        const multiple = ( divided - ( ( divided % 1 ) - 0.5 ) ) * 10;
+        // const maxValRnd =  multiple * nrLines;
+
+        const maxValRnd = ( () => {
+            let currentMax = 0;
+
+            while ( currentMax < this.maxVal ) {
+                currentMax += multiple;
+            }
+
+            return currentMax;
+        } )();
+
+        this.maxValRnd = maxValRnd;
+        this.multiple = multiple;
     }
 
     drawBar(x,y,w,h,color){
@@ -42,47 +69,64 @@ export default class Bar extends Chart {
         this.ctx.fillText( `${label}`, x, y );
     }
 
-    //  Method - build
-    barGen( inputObject = this.input ) {
-        const valSum = this.valArray.reduce( ( a, b ) => {
-            return a + b;
-        } );
+    drawGrid(w,h){
+        const nrLines = this.maxValRnd/this.multiple;
+        const origin = this.style.padding;
+        
+        // Background
+        this.ctx.fillStyle = 'rgba(0,0,0,0.1)';
+        this.ctx.fillRect( origin, origin, w, h );
+        // this.ctx.strokeRect( x, y, w, h );
 
-        /* 
-            Bar scaling/position:
-                - barContainerW = default bar container size based on canvas size
-                - barW = set bar width
-                - maxH = max bar height as determined by canvas
-        */
-        const barContainerW = Math.floor( this.target.offsetWidth / inputObject.length );
-        const barW = barContainerW/2;
-        const maxH = this.canvas.height;
+        // Lines & labels
+        for(let i=0; i<=nrLines; i++){
+            let yPos = origin + ( this.CC.height / nrLines ) * i;
+            let xPos = origin;
+            let yLabel = this.maxValRnd-(this.multiple*i);
 
-        /* The loop */
-        for ( let key of this.keyArray ) {
-            let barColor = 'Lavender';
-            /* 
-                Iterative bar scaling/offset
-                    - barH = height of current bar, based on input values & sum
-                    - xOffset/yOffset = absolute bar offset based on loop index and barH
-                    - centerBar/centerLabel = relative centering based on absolute offset
-            */
-            let barH = ( this.valArray[this.keyArray.indexOf( key )] / this.maxVal ) * maxH;
-            let xOffset = ( this.keyArray.indexOf( key ) ) * barContainerW;
-            let yOffset = this.canvas.height - barH;
-            let centerBar = xOffset - (barW / 2) + (barContainerW / 2);
-            let centerLabel = xOffset - ( this.ctx.measureText( key ).width / 2 ) + ( barContainerW / 2 );
-
-            //  bars
-            this.drawBar(centerBar, yOffset, barW, barH, barColor);
-            
-            //  labels
-            this.drawLabel(centerLabel, maxH, key);
+            this.ctx.beginPath();
+            this.ctx.moveTo( xPos, xPos + (this.CC.height/nrLines)*i);
+            this.ctx.lineTo( xPos + this.CC.width, yPos);
+            this.ctx.stroke();
+            this.drawLabel( xPos-24, yPos, yLabel );
         }
     }
 
+    //  Method - generate BARS
+    barGen( inputData = this.data ) {
+        const maxW = Math.floor( this.CC.width / inputData.length );
+        const scaleY = this.maxVal/this.maxValRnd;
+        const maxH = this.CC.height * scaleY;
+
+        /* The loop */
+           for(let i=0; i<this.keyArray.length; i++){
+            let barColor = 'Lavender';
+            let barW = maxW/2;
+            let barH = (this.valArray[i]/this.maxVal)*maxH;
+
+            let xOffset = (this.style.padding) + (i * maxW);
+            let yOffset = this.CC.height + (this.style.padding) - barH;
+
+            let centerBar = xOffset - (barW / 2) + (maxW / 2);
+            let centerLabel = xOffset - ( this.ctx.measureText( this.keyArray[i] ).width / 2 ) + ( maxW / 2 );
+
+            //  bars
+            this.drawBar(centerBar, yOffset, barW, barH, barColor);
+
+            //  labels
+            this.drawLabel( centerLabel, this.CC.height + ( this.style.padding ) + 24, this.keyArray[i]);
+        }
+    }
+
+    //  Method - generate GRID
+    layoutGen() {
+        this.calcGrid();
+        this.drawGrid( this.CC.width, this.CC.height );
+    }
+    
     init() {
         // this.sortBy( 'count' );
+        this.layoutGen();
         this.barGen();
     }
 }

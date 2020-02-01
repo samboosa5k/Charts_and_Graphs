@@ -22,18 +22,23 @@ init();
 
 /* Test Spawn */
 //  1. Test data
-const testData = [
-    {key: 'product_1', count: 12},
-    {key: 'product_2', count: 33},
-    {key: 'product_3', count: 55},
-    {key: 'product_4', count: 78},
-    {key: 'product_5', count: 100},
-    {key: 'product_6', count: 122},
-    {key: 'product_7', count: 134},
-];
+const testInput = {
+    style:{
+        padding: 64,
+    },
+    data:[
+        {key: 'product_1', count: 4},
+        {key: 'product_2', count: 5},
+        {key: 'product_3', count: 7},
+        {key: 'product_4', count: 22},
+        {key: 'product_5', count: 44},
+        {key: 'product_6', count: 66},
+        {key: 'product_7', count: 99},
+    ]
+}
 
 //  2. Event listener to spawn chart
 document.addEventListener('DOMContentLoaded',()=>{
-    ChartCreate( { type: 'Bar', name: 'test-bar-chart', input: testData } );
+    ChartCreate( { type: 'Bar', name: 'test-bar-chart', input: testInput } );
 })
 

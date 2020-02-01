@@ -11,13 +11,14 @@
 export default class Chart {
     constructor( {name, input, target} ) {
         this.name = name;
-        this.input = input;
+        this.style = input.style;
+        this.data = input.data;
         this.target = document.querySelector('#test_target');
         this.newCanvas = document.createElement( 'canvas' );
         this.canvas = undefined;
         this.ctx = undefined;
         this.buildChartMethod = undefined;
-        this.chartContainer = {width: 0, height: 0};
+        this.CC = {width: 0, height: 0};    // Chart container
     }
 
     //  Methods - Canvas
@@ -26,12 +27,13 @@ export default class Chart {
     }
 
     _setSizeCanvas(target){
+        const pad = this.style.padding*2;
         const W = this.target.offsetWidth;
         const H = this.target.offsetHeight;
         target.width = W;
         target.height = H;
 
-        this.chartContainer = {width: H-64, height: W-64};
+        this.CC = {width: W-pad, height: H-pad};
     }
 
     _bindCanvas(target){
