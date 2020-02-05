@@ -78,16 +78,6 @@ export default class Bar extends Chart {
         this.drawLabel(w/2, h-p, 'center', 'middle', xAxisLabel);
     }
 
-    drawBarGroupLabels(){
-        const h = this.canvas.height;
-        const w = this.canvas.width;
-        const p = this.style.padding / 2;
-
-        for(let i=0; i < this.groupArray.length; i++){
-            this.drawLabel(w/2, h-p, 'center', 'middle', this.groupArray[i]);
-        }
-    }
-
     drawBar( x, y, w, h, color ) {
         this.ctx.fillStyle = color;
         this.ctx.fillRect( x, y, w, h );
@@ -132,19 +122,20 @@ export default class Bar extends Chart {
             - barW -> independent width scaling
             - maxGroupW -> the absolute MAX WIDTH a bar-group can be
             - groupGap -> calculate additional group offset, when bars are not 100% wide
+
+             minus-((barW*(this.keyArray.length/this.groupArray.length))/2)+maxGroupW/2
         */
         const colorPattern = this.style.color_pattern;
         const chartColors = this.style.chart_colors;
         const maxW = Math.floor((this.CC.width / this.data.length));
         const maxH = this.CC.height * ( this.maxVal / this.yLabelMax);
-        const barW = maxW / 1.2;
+        const barW = maxW / 1.6;
         const maxGroupW = Math.floor(this.CC.width / this.groupArray.length);
-        const groupGap = ( ( this.CC.width - ( this.keyArray.length * barW ) ) / this.groupArray.length ) / this.groupArray.length;
-        // const groupCenter = 
+        const groupCenter = -( maxGroupW / 2 ) + this.CC.width / ( this.groupArray.length + 1);
 
         // Increment X-offset for bar groups
         let currGroupOffset = 0;
-        let currGroupWidth = 0;
+        let currGroupChildren = 0;
 
         // LOOP START
         for ( let i = 0; i < this.keyArray.length; i++ ) {
@@ -167,14 +158,9 @@ export default class Bar extends Chart {
 
             // Add GROUP offset if grouped is on
             if(this.style.grouped){
-                if ( i === 0 ) {
-                    currGroupOffset = 0;
-                    currGroupWidth = barW;
-                } else if ( isNewGroup ) {
-                    currGroupOffset += groupGap + (maxGroupW - currGroupWidth);
-                    currGroupWidth = barW;
-                } else {
-                    currGroupWidth += barW;
+                 if ( i === 0 || isNewGroup) {
+                    currGroupOffset += groupCenter;
+                    currGroupChildren = this.data.filter(obj => { return obj.group === this.data[i].group}).length;
                 }
             }
 
@@ -182,7 +168,7 @@ export default class Bar extends Chart {
             /* 
                 wModifier -> this is needed because when bars are grouped/ungrouped,
                 the distribution changes from being 'spread evenly' to being
-                'clustered together'
+                'clustered together' & 'spread groups evenly'
             */
             let wModifier = ( this.style.grouped ) ? barW : maxW;
             let xOffset = ( this.style.padding ) + ( i * wModifier );
@@ -193,11 +179,18 @@ export default class Bar extends Chart {
             let xPosLabel = xOffset + ( maxW / 2 ) + currGroupOffset;
             let yPosLabel = this.CC.height + this.style.padding;
 
-            //  bars
+            //  Bars
             this.drawBar( xPosBar, yOffset, barW, barH, barColor );
 
-            //  labels -> barLabel -or- groupLabel
+            //  BAR label
             this.drawLabel( xPosLabel, yPosLabel, 'center', 'hanging', barLabel );
+
+            //  GROUP label
+            if ( this.style.grouped ) {
+                if ( i === 0 || isNewGroup ) {
+                    this.drawLabel( xPosBar + barW*(currGroupChildren/2), yPosLabel+16, 'center', 'hanging', this.data[i].group);
+                }
+            }
         }
         // LOOP END
     }
@@ -207,7 +200,6 @@ export default class Bar extends Chart {
         this.calcGrid();
         this.drawGrid();
         this.drawAxisLabels();
-        //this.drawBarGroupLabels();
     }
     
     init() {
