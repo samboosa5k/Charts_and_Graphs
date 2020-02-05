@@ -30,22 +30,32 @@ const testInput = {
     name: 'test-bar-chart',
     attach_target: '#test_target',
     style:{
+        grouped: true,
         padding: 64,
-        chart_colors: ['Lavender','CornflowerBlue','Coral','DarkSeaGreen']
+        chart_colors: ['Azure','CornflowerBlue','Coral','DarkSeaGreen'],
+        color_pattern: 'alternating',   // 'alternating' or 'grouped'
     },
     axis_labels: {
         x: 'Products', 
         y: 'Units sold'
     },
     data:[
-        {group: 'one', key: 'product_1', value: 4},
-        {group: 'one', key: 'product_2', value: 5},
-        {group: 'one', key: 'product_3', value: 7},
-        {group: 'one', key: 'product_4', value: 22},
-        {group: 'two', key: 'product_5', value: 44},
-        {group: 'two', key: 'product_6', value: 66},
-        {group: 'two', key: 'product_7', value: 193},
-        {group: 'two', key: 'product_8', value: 240},
+        {group: 'Product_A', key: 'Q1', value: 40},
+        {group: 'Product_A', key: 'Q2', value: 50},
+        {group: 'Product_A', key: 'Q3', value: 7},
+        {group: 'Product_A', key: 'Q4', value: 22},
+        {group: 'Product_B', key: 'Q1', value: 44},
+        {group: 'Product_B', key: 'Q2', value: 66},
+        {group: 'Product_B', key: 'Q3', value: 150},
+        {group: 'Product_B', key: 'Q4', value: 166},
+        {group: 'Product_C', key: 'Q1', value: 13},
+        {group: 'Product_C', key: 'Q2', value: 100},
+        {group: 'Product_C', key: 'Q3', value: 25},
+        {group: 'Product_C', key: 'Q4', value: 16},
+        {group: 'Product_D', key: 'Q1', value: 11},
+        {group: 'Product_D', key: 'Q2', value: 34},
+        {group: 'Product_D', key: 'Q3', value: 144},
+        {group: 'Product_D', key: 'Q4', value: 88},
     ]
 }
 

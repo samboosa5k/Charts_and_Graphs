@@ -10,16 +10,22 @@
 
 export default class Chart {
     constructor( {name, attach_target, style, axis_labels, data} ) {
+        // From input
         this.name = name;
-        this.style = style;
         this.target = document.querySelector(attach_target);
+        this.style = style;
         this.axisLabels = axis_labels;
         this.data = data;
+        this.groupArray = [...new Set(data.map( obj => { return obj.group } ))];    // [...new Set(array)] automatically removes duplicates from array
+        this.keyArray = data.map( obj => { return obj.key } );
+        this.valArray = data.map( obj => { return obj.value } );
+        // For canvas
         this.newCanvas = document.createElement( 'canvas' );
         this.canvas = undefined;
         this.ctx = undefined;
+        this.CC = {width: 0, height: 0};    // Chart container - relative to padding
+        // Dynamic build method
         this.buildChartMethod = undefined;
-        this.CC = {width: 0, height: 0};    // Chart container
     }
 
     //  Methods - Canvas
@@ -104,6 +110,6 @@ export default class Chart {
     get spawn() {
         this._buildChart();
         this._monitorResize();
-        console.log(this);
+        //console.log(this);
     }
 }
