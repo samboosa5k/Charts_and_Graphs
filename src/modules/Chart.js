@@ -9,11 +9,12 @@
 */
 
 export default class Chart {
-    constructor( {name, input, target} ) {
+    constructor( {name, attach_target, style, axis_labels, data} ) {
         this.name = name;
-        this.style = input.style;
-        this.data = input.data;
-        this.target = document.querySelector('#test_target');
+        this.style = style;
+        this.target = document.querySelector(attach_target);
+        this.axisLabels = axis_labels;
+        this.data = data;
         this.newCanvas = document.createElement( 'canvas' );
         this.canvas = undefined;
         this.ctx = undefined;
@@ -103,5 +104,6 @@ export default class Chart {
     get spawn() {
         this._buildChart();
         this._monitorResize();
+        console.log(this);
     }
 }
