@@ -22,23 +22,35 @@ init();
 
 /* Test Spawn */
 //  1. Test data
+//  2. data => array of objects
+//          => key & val MANDATORY
+//          => group property OPTIONAL (should be checked in buildMethod)
 const testInput = {
+    type: 'Bar',
+    name: 'test-bar-chart',
+    attach_target: '#test_target',
     style:{
         padding: 64,
+        chart_colors: ['Lavender','CornflowerBlue','Coral','DarkSeaGreen']
+    },
+    axis_labels: {
+        x: 'Products', 
+        y: 'Units sold'
     },
     data:[
-        {key: 'product_1', count: 4},
-        {key: 'product_2', count: 5},
-        {key: 'product_3', count: 7},
-        {key: 'product_4', count: 22},
-        {key: 'product_5', count: 44},
-        {key: 'product_6', count: 66},
-        {key: 'product_7', count: 193},
+        {group: 'one', key: 'product_1', value: 4},
+        {group: 'one', key: 'product_2', value: 5},
+        {group: 'one', key: 'product_3', value: 7},
+        {group: 'one', key: 'product_4', value: 22},
+        {group: 'two', key: 'product_5', value: 44},
+        {group: 'two', key: 'product_6', value: 66},
+        {group: 'two', key: 'product_7', value: 193},
+        {group: 'two', key: 'product_8', value: 240},
     ]
 }
 
 //  2. Event listener to spawn chart
 document.addEventListener('DOMContentLoaded',()=>{
-    ChartCreate( { type: 'Bar', name: 'test-bar-chart', input: testInput } );
+    ChartCreate( testInput );
 })
 

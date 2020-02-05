@@ -6,12 +6,12 @@ import Chart from '../Chart.js';
 */
 
 export default class Bar extends Chart {
-    constructor( {name, input} ) {
-        super( {name, input} );
+    constructor( { name, attach_target, style, axis_labels, data} ) {
+        super( { name, attach_target, style, axis_labels, data} );
         this.buildChartMethod = this.init;
         // this.sortedInput = undefined;
         this.keyArray = this.data.map( obj => { return obj.key } );
-        this.valArray = this.data.map( obj => { return obj.count } );
+        this.valArray = this.data.map( obj => { return obj.value } );
         this.maxVal = Math.max.apply( Math, this.valArray );
         this.yLabelInc = 20;
         this.yLabelMax = undefined;
@@ -22,11 +22,11 @@ export default class Bar extends Chart {
     //  Method - sort
     /* sortBy( method ) {
         switch ( method ) {
-            case 'count':
+            case 'value':
                 // console.log( 'sorted' );
                 this.sortedInput = this.data.sort( ( a, b ) => {
-                    if ( a.count < b.count ) return -1;
-                    if ( a.count > b.count ) return 1;
+                    if ( a.value < b.value ) return -1;
+                    if ( a.value > b.value ) return 1;
                 } );
                 break;
         }
@@ -54,14 +54,54 @@ export default class Bar extends Chart {
         this.ctx.strokeRect( x, y, w, h );
     }
 
-    drawLabel(x,y,label){
+    drawLabel( x, y, xAlign = undefined, yAlign = undefined, label, rotate = undefined){
+        const rotateFactor = 180/rotate;
+        if(rotate !== undefined){
+            this.ctx.save();
+            this.ctx.translate(0,0);
+            this.ctx.rotate(Math.PI/rotateFactor);
+        }
+
         this.ctx.font = `12px Arial`;
         this.ctx.fillStyle = 'black'
+        
+        /* 
+            Alignment:
+            - start
+            - end
+            - left
+            - center
+            - right
+        */
+        if(xAlign !== undefined){
+            this.ctx.textAlign = `${xAlign}`;
+            this.ctx.textBaseline = `${yAlign}`;
+        }
+
         this.ctx.fillText( `${label}`, x, y );
+
+        if(rotate !== undefined){
+            this.ctx.restore();
+        }
     }
 
-    drawGrid(w,h){
+    drawAxisLabels(){
+        const xAxisLabel = this.axisLabels.x;
+        const yAxisLabel = this.axisLabels.y;
+        const h = this.canvas.height;
+        const w = this.canvas.width;
+        const p = this.style.padding/2;
+
+        // yAxisLabel
+        this.drawLabel(-h/2, p, 'center', 'middle', yAxisLabel, -90);
+        // xAxisLabel
+        this.drawLabel(w/2, h-p, 'center', 'middle', xAxisLabel);
+    }
+
+    drawGrid(){
         const origin = this.style.padding;
+        const w = this.CC.width;
+        const h = this.CC.height;
         
         // Background
         this.ctx.fillStyle = 'rgba(0,0,0,0.1)';
@@ -74,11 +114,14 @@ export default class Bar extends Chart {
             let xPos = origin;
             let yLabel = this.yLabelMax-(this.yLabelInc*i);
 
+            // The lines
             this.ctx.beginPath();
             this.ctx.moveTo( xPos, xPos + ( this.CC.height / this.nrLinesMax)*i);
             this.ctx.lineTo( xPos + this.CC.width, yPos);
             this.ctx.stroke();
-            this.drawLabel( xPos-24, yPos, yLabel );
+
+            // The labels
+            this.drawLabel( xPos, yPos, 'end','middle', yLabel);
         }
     }
 
@@ -89,33 +132,40 @@ export default class Bar extends Chart {
         const maxH = this.CC.height * scaleY;
 
         /* The loop */
-           for(let i=0; i<this.keyArray.length; i++){
-            let barColor = 'Lavender';
-            let barW = maxW/2;
-            let barH = (this.valArray[i]/this.maxVal)*maxH;
+        for ( let i = 0; i < this.keyArray.length; i++ ) {
+            let barColor = this.style.chart_colors[i%this.style.chart_colors.length];
+            let yLabel = this.keyArray[i];
 
-            let xOffset = (this.style.padding) + (i * maxW);
-            let yOffset = this.CC.height + (this.style.padding) - barH;
+            // Dimension calculation
+            let barW = maxW / 2;
+            let barH = ( this.valArray[i] / this.maxVal ) * maxH;
 
-            let centerBar = xOffset - (barW / 2) + (maxW / 2);
-            let centerLabel = xOffset - ( this.ctx.measureText( this.keyArray[i] ).width / 2 ) + ( maxW / 2 );
+            // Initial offset
+            let xOffset = ( this.style.padding ) + ( i * maxW );
+            let yOffset = this.CC.height + ( this.style.padding ) - barH;
+
+            // Final offset
+            let xPosBar = xOffset - ( barW / 2 ) + ( maxW / 2 );
+            let xPosLabel = xOffset + ( maxW / 2 );
+            let yPosLabel = this.CC.height + this.style.padding;
 
             //  bars
-            this.drawBar(centerBar, yOffset, barW, barH, barColor);
+            this.drawBar( xPosBar, yOffset, barW, barH, barColor );
 
             //  labels
-            this.drawLabel( centerLabel, this.CC.height + ( this.style.padding ) + 24, this.keyArray[i]);
+            this.drawLabel( xPosLabel, yPosLabel, 'center', 'hanging', yLabel );
         }
     }
 
     //  Method - generate GRID
     layoutGen() {
         this.calcGrid();
-        this.drawGrid( this.CC.width, this.CC.height );
+        this.drawGrid();
+        this.drawAxisLabels();
     }
     
     init() {
-        // this.sortBy( 'count' );
+        // this.sortBy( 'value' );
         this.layoutGen();
         this.barGen();
     }
