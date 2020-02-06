@@ -41,11 +41,6 @@ export default class Chart {
         this.sibExists = SOC.retrieve( SIBOUTPUT.identifier ) !== undefined;
         this.target = document.querySelector(attach_target);
         this.style = style;
-        // For canvas
-        //this.newCanvas = document.createElement( 'canvas' );
-        // this.canvas = undefined;
-        // this.ctx = undefined;
-        // this.CC = {width: 0, height: 0};    // Chart container - relative to padding
         // Dynamic build method
         this.buildChartMethod = undefined;
     }
@@ -138,7 +133,6 @@ export default class Chart {
 
     //  Method - FIRST BUILD
     get spawn() {
-        //console.log('Chart.js -> spawn: ', 'started');
         if(this.sibExists){
             this._initSiblingProperties();
             this.buildChartMethod();

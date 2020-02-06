@@ -90,7 +90,10 @@ const bindsSecondary = async () => {
 document.addEventListener('DOMContentLoaded', async ()=>{
     await binds()
     .then(()=>{bindsSecondary()})
-    .then(()=> { /* chart1(); */ chart2() });
+    .then(()=> { 
+        chart1(); 
+        chart2();
+    });
 })
 
 

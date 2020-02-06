@@ -39,12 +39,16 @@ export default class Line extends BarType {
             let x2 = SIBOUTPUT.coords[i+1][0];
             let y2 = SIBOUTPUT.coords[i+1][1];
             this.drawLine(x,y,x2,y2);
-            console.log( `${x}`)
         }      
     }
 
     init() {
-        this.layoutGen();
-        this.lineGen();
+        console.log('line -> sibexists? ', this.sibExists);
+        if ( this.sibExists ) {
+            this.lineGen();
+        } else {
+            this.layoutGen();
+            this.lineGen();
+        }
     }
 }

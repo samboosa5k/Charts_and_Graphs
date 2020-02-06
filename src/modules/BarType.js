@@ -15,9 +15,7 @@ export default class BarType extends Chart {
             this.valArray = data.map( obj => { return obj.value } );
             //  Important constants
             this.maxVal = Math.max.apply( Math, this.valArray );
-            this.yLabelInc = 20;
-            // this.yLabelMax = undefined;
-            // this.nrLinesMax = undefined;
+            this.yLabelInc = 20; 
     }
 
     //  Methods - shared
@@ -41,6 +39,7 @@ export default class BarType extends Chart {
     }
 
     calcCoords(){
+        const isGrouped = this.style.grouped;
         const xIncrement = Math.round(SIBOUTPUT.CC.width/(this.data.length));
         const yMax = SIBOUTPUT.CC.height * ( this.maxVal / SIBOUTPUT.grid.yLabelMax );
 
@@ -51,8 +50,6 @@ export default class BarType extends Chart {
             //  COORDS output
             SIBOUTPUT.coords.push([x,y]);
         }
-
-        console.log( SIBOUTPUT.coords);
     }
 
     drawLabel( x, y, xAlign = undefined, yAlign = undefined, label, rotate = undefined ) {
@@ -150,6 +147,7 @@ export default class BarType extends Chart {
             this.calcCoords();
             this.drawGrid();
             this.drawAxisLabels();
+            SOC.store(SIBOUTPUT);
         }
     }
 }
