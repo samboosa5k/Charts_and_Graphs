@@ -1,3 +1,6 @@
+/* Functional/important imports */
+import { SiblingOutputController as SOC} from './Registry.js';
+
 /* 
     Parent class:
     Variables ->
@@ -5,32 +8,51 @@
     - Type (Called back from extended child class)
     - (Other standard variables and labels)
     Functions ->
-    - Spawn (attach to document or wherever)
+    - Spawn (attach canvas to target)
 */
 
+export const SIBOUTPUT = {
+    name: undefined,
+    type: 'BarType',
+    identifier: undefined,
+    canvas: undefined,
+    ctx: undefined,
+    CC: undefined,
+    grid: {
+        nrLinesMax: undefined,
+        yLabelMax: undefined
+    },
+    labels: {
+        axis: [],
+        grid: [],
+        bar: [],
+        group: []
+    },
+    bars: [],
+    coords: []
+}
+
 export default class Chart {
-    constructor( {name, attach_target, style, axis_labels, data} ) {
+    constructor( {name, identifier, attach_target, style} ) {
         // From input
-        this.name = name;
+        this.identifier = identifier;
+        SIBOUTPUT.name = name;
+        SIBOUTPUT.identifier = identifier;
+        this.sibExists = SOC.retrieve( SIBOUTPUT.identifier ) !== undefined;
         this.target = document.querySelector(attach_target);
         this.style = style;
-        this.axisLabels = axis_labels;
-        this.data = data;
-        this.groupArray = [...new Set(data.map( obj => { return obj.group } ))];    // [...new Set(array)] automatically removes duplicates from array
-        this.keyArray = data.map( obj => { return obj.key } );
-        this.valArray = data.map( obj => { return obj.value } );
         // For canvas
-        this.newCanvas = document.createElement( 'canvas' );
-        this.canvas = undefined;
-        this.ctx = undefined;
-        this.CC = {width: 0, height: 0};    // Chart container - relative to padding
+        //this.newCanvas = document.createElement( 'canvas' );
+        // this.canvas = undefined;
+        // this.ctx = undefined;
+        // this.CC = {width: 0, height: 0};    // Chart container - relative to padding
         // Dynamic build method
         this.buildChartMethod = undefined;
     }
 
     //  Methods - Canvas
     _clearCanvas() {
-        this.ctx.clearRect( 0, 0, this.canvas.width, this.canvas.height );
+        SIBOUTPUT.ctx.clearRect( 0, 0, SIBOUTPUT.canvas.width, SIBOUTPUT.canvas.height );
     }
 
     _setSizeCanvas(target){
@@ -40,20 +62,21 @@ export default class Chart {
         target.width = W;
         target.height = H;
 
-        this.CC = {width: W-pad, height: H-pad};
+        SIBOUTPUT.CC = {width: W-pad, height: H-pad};
     }
 
     _bindCanvas(target){
         this.target.appendChild( target );
-        this.canvas = document.getElementById( this.name );
-        this.ctx = this.canvas.getContext( '2d' );
+        SIBOUTPUT.canvas = document.getElementById( SIBOUTPUT.identifier );
+        SIBOUTPUT.ctx = SIBOUTPUT.canvas.getContext( '2d' );
     }
 
-    _createCanvas(shouldRefresh = false, options) {
-        const refresh = (shouldRefresh === true) ? true : false;
-        const canvasTarget = (refresh) ? this.canvas : this.newCanvas;
+    _createCanvas(shouldRefresh, options) {
+        const canvasTarget = ( shouldRefresh === true ) ?
+            SIBOUTPUT.canvas :
+            document.createElement( 'canvas' );
 
-        if(refresh){
+        if(shouldRefresh){
             this._setSizeCanvas(canvasTarget);
         } else {
             this._setSizeCanvas(canvasTarget);
@@ -61,7 +84,7 @@ export default class Chart {
             // Set New Canvas properties
             canvasTarget.style.position = 'relative';
             canvasTarget.style.zIndex = 999;
-            canvasTarget.id = this.name;
+            canvasTarget.id = SIBOUTPUT.identifier;
             
             // Append to target container
             this._bindCanvas(canvasTarget);            
@@ -70,18 +93,18 @@ export default class Chart {
 
     //  Methods - Draw chart Interface
     _drawOutline(){
-        this.ctx.strokeStyle = 'black';
-        this.ctx.strokeRect(0,0, this.canvas.width, this.canvas.height);
+        SIBOUTPUT.ctx.strokeStyle = 'black';
+        SIBOUTPUT.ctx.strokeRect(0,0, SIBOUTPUT.canvas.width, SIBOUTPUT.canvas.height);
     }
 
     _drawTitle(){
         const fontSize = 12;
-        const center = this.canvas.width / 2 - ( this.ctx.measureText( this.name ).width / 2 );
+        const center = SIBOUTPUT.canvas.width / 2 - ( SIBOUTPUT.ctx.measureText( SIBOUTPUT.name ).width / 2 );
         const xPos = center;
         const yPos = fontSize;
-        this.ctx.font = `12px Arial`;
-        this.ctx.fillStyle = 'black'
-        this.ctx.fillText( `${this.name}`, xPos, yPos );
+        SIBOUTPUT.ctx.font = `12px Arial`;
+        SIBOUTPUT.ctx.fillStyle = 'black'
+        SIBOUTPUT.ctx.fillText( `${SIBOUTPUT.name}`, xPos, yPos );
     }
 
     _drawInterface(){
@@ -91,25 +114,38 @@ export default class Chart {
 
     //  Methods - Build & Refresh & Monitor-Resize
     _buildChart(shouldRefresh, options) {
-        this._createCanvas(options);
+        this._createCanvas(shouldRefresh, options);
         this._drawInterface();
-        this.buildChartMethod();
     }
 
-    _refreshChart() {
-        const shouldRefresh = true;
+    _refreshChart(shouldRefresh = true, options) {
         this._clearCanvas();
-        this._buildChart(shouldRefresh);   
+        this._buildChart(shouldRefresh, options);   
+        this.buildChartMethod();
     }
 
     _monitorResize(){
         window.addEventListener('resize', ()=>this._refreshChart());
     }
 
+    //  Method - IF SIBLING EXISTS
+    _initSiblingProperties(){
+        const sibling = SOC.retrieve(SIBOUTPUT.identifier);
+        SIBOUTPUT.canvas = document.getElementById(SIBOUTPUT.identifier);
+        SIBOUTPUT.ctx = SIBOUTPUT.canvas.getContext( '2d' );
+        SIBOUTPUT.CC = sibling.CC;
+    }
+
     //  Method - FIRST BUILD
     get spawn() {
-        this._buildChart();
-        this._monitorResize();
-        //console.log(this);
+        //console.log('Chart.js -> spawn: ', 'started');
+        if(this.sibExists){
+            this._initSiblingProperties();
+            this.buildChartMethod();
+        } else {
+            this._buildChart();
+            this.buildChartMethod();
+            this._monitorResize();
+        }
     }
 }

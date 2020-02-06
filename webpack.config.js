@@ -1,8 +1,10 @@
 const HtmlWebpackPlugin = require( 'html-webpack-plugin' );
 const path = require( 'path' );
 
+//--------devServer -> silence messages-----------//
+// Source: https://stackoverflow.com/questions/48322931/webpack-console-log-output
+
 module.exports = {
-    /* context: path.join(__dirname, 'src'), */
     entry: './src/index.js',
     output: {
         filename: 'index.js',

@@ -1,15 +1,15 @@
 /* Functional/important imports */
-import {ChartController} from './ChartRegistry.js';
+import {ChartController} from './Registry.js';
 /* Chart imports */
-import Test from './Chart/Test.js';
-import Bar from './Chart/Bar.js';
+import Line from './BarType/Line.js';
+import Bar from './BarType/Bar.js';
 
 const CHARTS = {
-    Test,
+    Line,
     Bar
 }
 
-export const ChartFactory = (()=>{
+const ChartFactory = (()=>{
     const create = ( configObj ) => {
         const selectChart = CHARTS[configObj.type];
         const chartName = configObj.name;
@@ -54,3 +54,5 @@ export const ChartFactory = (()=>{
         create
     }
 })();
+
+export {ChartFactory};
