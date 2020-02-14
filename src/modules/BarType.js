@@ -1,7 +1,7 @@
 /* Functional/important imports */
-import { SiblingOutputController as SOC} from './Registry.js';
+import { SiblingContextController as SCC} from './Registry.js';
 /* Chart parent import */
-import Chart,{SIBOUTPUT} from './Chart.js';
+import Chart,{SIBCONTEXT} from './Chart.js';
 
 export default class BarType extends Chart {
     constructor( { name, identifier, attach_target, style, axis_labels, data } ) {
@@ -34,34 +34,62 @@ export default class BarType extends Chart {
         } )();
 
         // Output storage
-        SIBOUTPUT.grid.nrLinesMax = gridMax.nrLinesMax;
-        SIBOUTPUT.grid.yLabelMax = gridMax.yLabelMax;
+        SIBCONTEXT.grid.nrLinesMax = gridMax.nrLinesMax;
+        SIBCONTEXT.grid.yLabelMax = gridMax.yLabelMax;
     }
 
     calcCoords(){
+        //--------Standard dimensions--------//
+        const xIncrement = Math.round(SIBCONTEXT.CC.width/(this.data.length));
+        const yMax = SIBCONTEXT.CC.height * ( this.maxVal / SIBCONTEXT.grid.yLabelMax );
+        //--------Grouped dimensions--------//
         const isGrouped = this.style.grouped;
-        const xIncrement = Math.round(SIBOUTPUT.CC.width/(this.data.length));
-        const yMax = SIBOUTPUT.CC.height * ( this.maxVal / SIBOUTPUT.grid.yLabelMax );
+        const grp = (()=>{
+            let nrGrps = this.groupArray.length;
+            let nrInGrp = this.data.filter((obj) => obj.group === this.groupArray[0]).length;
+            let gap = SIBCONTEXT.CC.width * 0.10;
+            //let gap = SIBCONTEXT.CC.width /(nrInGrp + nrInGrp + 1);
+            let wMax = ((SIBCONTEXT.CC.width - (gap*(nrGrps+1))) / (this.groupArray.length));
+            let xInc = Math.round(wMax/(nrInGrp));
+            return {
+                nrGrps, nrInGrp, gap, wMax, xInc
+            }
+        })();
 
-        for(let i=0;i<=this.keyArray.length; i++){
-            let x = (this.style.padding + xIncrement/2) + (i * xIncrement);
-            let y = SIBOUTPUT.CC.height + ( this.style.padding ) - ((this.valArray[i]/this.maxVal) * yMax);
+        let grpOffset = 0;
+        let coordsTemp = [];
 
+        for(let i=0;i<this.data.length; i++){
+            let mul = ( grp.nrInGrp - ( ( i ) / grp.nrInGrp ) ) % 1 === 0;
+            let x;
+            let y = SIBCONTEXT.CC.height + ( this.style.padding ) - ((this.valArray[i]/this.maxVal) * yMax);
+
+            //  Group condition
+            if(isGrouped){
+                if (mul && i !== 0) grpOffset += grp.gap;
+                x = ( this.style.padding + grp.gap ) + ( grp.xInc * i ) + grpOffset ;
+            } else {
+                x = ( this.style.padding + xIncrement / 2 ) + ( i * xIncrement );
+            }
+
+        //    console.log( this.data[i] );
             //  COORDS output
-            SIBOUTPUT.coords.push([x,y]);
+            coordsTemp.push([x,y]);
         }
+        SIBCONTEXT.coords = coordsTemp;
+        console.log(SIBCONTEXT.coords);
     }
 
     drawLabel( x, y, xAlign = undefined, yAlign = undefined, label, rotate = undefined ) {
         const rotateFactor = 180 / rotate;
         if ( rotate !== undefined ) {
-            SIBOUTPUT.ctx.save();
-            SIBOUTPUT.ctx.translate( 0, 0 );
-            SIBOUTPUT.ctx.rotate( Math.PI / rotateFactor );
+            SIBCONTEXT.ctx.save();
+            SIBCONTEXT.ctx.translate( 0, 0 );
+            SIBCONTEXT.ctx.rotate( Math.PI / rotateFactor );
         }
 
-        SIBOUTPUT.ctx.font = `12px Arial`;
-        SIBOUTPUT.ctx.fillStyle = 'black'
+        SIBCONTEXT.ctx.font = `12px Arial`;
+        SIBCONTEXT.ctx.fillStyle = 'black'
 
         /* 
             Alignment:
@@ -72,22 +100,22 @@ export default class BarType extends Chart {
             - right
         */
         if ( xAlign !== undefined ) {
-            SIBOUTPUT.ctx.textAlign = `${xAlign}`;
-            SIBOUTPUT.ctx.textBaseline = `${yAlign}`;
+            SIBCONTEXT.ctx.textAlign = `${xAlign}`;
+            SIBCONTEXT.ctx.textBaseline = `${yAlign}`;
         }
 
-        SIBOUTPUT.ctx.fillText( `${label}`, x, y );
+        SIBCONTEXT.ctx.fillText( `${label}`, x, y );
 
         if ( rotate !== undefined ) {
-            SIBOUTPUT.ctx.restore();
+            SIBCONTEXT.ctx.restore();
         }
     }
 
     drawAxisLabels() {
         const xAxisLabel = this.axisLabels.x;
         const yAxisLabel = this.axisLabels.y;
-        const h = SIBOUTPUT.canvas.height;
-        const w = SIBOUTPUT.canvas.width;
+        const h = SIBCONTEXT.canvas.height;
+        const w = SIBCONTEXT.canvas.width;
         const p = this.style.padding / 2;
 
         // yAxisLabel
@@ -96,46 +124,46 @@ export default class BarType extends Chart {
         this.drawLabel( w / 2, h - p, 'center', 'middle', xAxisLabel );
 
         // Output storage test
-        SIBOUTPUT.labels.axis.push([-h / 2, p, 'center', 'middle', yAxisLabel, -90]);
-        SIBOUTPUT.labels.axis.push([w / 2, h - p, 'center', 'middle', xAxisLabel]);
+        SIBCONTEXT.labels.axis.push([-h / 2, p, 'center', 'middle', yAxisLabel, -90]);
+        SIBCONTEXT.labels.axis.push([w / 2, h - p, 'center', 'middle', xAxisLabel]);
     }
 
     //  Methods - LAYOUT
     drawGrid() {
         const origin = this.style.padding;
-        const w = SIBOUTPUT.CC.width;
-        const h = SIBOUTPUT.CC.height;
+        const w = SIBCONTEXT.CC.width;
+        const h = SIBCONTEXT.CC.height;
 
         // Background
-        SIBOUTPUT.ctx.fillStyle = 'rgba(0,0,0,0.1)';
-        SIBOUTPUT.ctx.fillRect( origin, origin, w, h );
+        SIBCONTEXT.ctx.fillStyle = 'rgba(0,0,0,0.1)';
+        SIBCONTEXT.ctx.fillRect( origin, origin, w, h );
         // this.ctx.strokeRect( x, y, w, h );
 
         // Lines & labels
-        for ( let i = 0; i <= SIBOUTPUT.grid.nrLinesMax; i++ ) {
-            let yPos = origin + ( SIBOUTPUT.CC.height / SIBOUTPUT.grid.nrLinesMax ) * i;
+        for ( let i = 0; i <= SIBCONTEXT.grid.nrLinesMax; i++ ) {
+            let yPos = origin + ( SIBCONTEXT.CC.height / SIBCONTEXT.grid.nrLinesMax ) * i;
             let xPos = origin;
-            let yLabel = SIBOUTPUT.grid.yLabelMax - ( this.yLabelInc * i );
+            let yLabel = SIBCONTEXT.grid.yLabelMax - ( this.yLabelInc * i );
 
             // The lines
-            SIBOUTPUT.ctx.beginPath();
-            SIBOUTPUT.ctx.moveTo( xPos, xPos + ( SIBOUTPUT.CC.height / SIBOUTPUT.grid.nrLinesMax ) * i );
-            SIBOUTPUT.ctx.lineTo( xPos + SIBOUTPUT.CC.width, yPos );
-            SIBOUTPUT.ctx.stroke();
+            SIBCONTEXT.ctx.beginPath();
+            SIBCONTEXT.ctx.moveTo( xPos, xPos + ( SIBCONTEXT.CC.height / SIBCONTEXT.grid.nrLinesMax ) * i );
+            SIBCONTEXT.ctx.lineTo( xPos + SIBCONTEXT.CC.width, yPos );
+            SIBCONTEXT.ctx.stroke();
 
             // The labels
             this.drawLabel( xPos, yPos, 'end', 'middle', yLabel );
 
             // Output storage test
-            SIBOUTPUT.labels.grid.push( [xPos, yPos, 'end', 'middle', yLabel]);
+            SIBCONTEXT.labels.grid.push( [xPos, yPos, 'end', 'middle', yLabel]);
         }
     }
 
     //  Method - IF SIBLING EXISTS
     _initSiblingProperties() {
-        const { grid } = SOC.retrieve( this.identifier );
-        SIBOUTPUT.grid.nrLinesMax = grid.nrLinesMax;
-        SIBOUTPUT.grid.yLabelMax = grid.yLabelMax;
+        const { grid } = SCC.retrieve( this.identifier );
+        SIBCONTEXT.grid.nrLinesMax = grid.nrLinesMax;
+        SIBCONTEXT.grid.yLabelMax = grid.yLabelMax;
     }
 
     //  Method - generate GRID
@@ -147,7 +175,7 @@ export default class BarType extends Chart {
             this.calcCoords();
             this.drawGrid();
             this.drawAxisLabels();
-            SOC.store(SIBOUTPUT);
+            SCC.store(SIBCONTEXT);
         }
     }
 }

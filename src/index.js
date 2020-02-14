@@ -1,9 +1,9 @@
-import {ChartController, SiblingOutputController as SOC} from './modules/Registry.js';
+import {ChartController, SiblingContextController as SCC} from './modules/Registry.js';
 import {ChartFactory} from './modules/ChartFactory.js';
 
 //------------Test data------------//
 const chartInput = {
-    type: 'Bar',
+    type: 'Line',
     name: 'bar-chart',
     identifier: 'chartID',
     attach_target: '#test_target',
@@ -34,6 +34,7 @@ const chartInput = {
         { group: 'Product_D', key: 'Q2', value: 34 },
         { group: 'Product_D', key: 'Q3', value: 144 },
         { group: 'Product_D', key: 'Q4', value: 88 },
+
     ]
 }
 const testInput = {
@@ -42,7 +43,7 @@ const testInput = {
     identifier: 'chartID',
     attach_target: '#test_target',
     style: {
-        grouped: false,
+        grouped: true,
         padding: 64,
         chart_colors: ['Azure', 'CornflowerBlue', 'Coral', 'DarkSeaGreen'],
         color_pattern: 'alternating',   // 'alternating' or 'grouped'
@@ -79,7 +80,7 @@ const binds = async () => {
     
     //  Controller functions
     window.ChartGet = ChartController.access;
-    window.StorageGet = SOC.retrieve;
+    window.StorageGet = SCC.retrieve;
 }
 
 const bindsSecondary = async () => {
@@ -92,7 +93,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     .then(()=>{bindsSecondary()})
     .then(()=> { 
         chart1(); 
-        chart2();
+        //chart2();
     });
 })
 

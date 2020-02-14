@@ -1,5 +1,5 @@
 /* Functional/important imports */
-import { SiblingOutputController as SOC} from './Registry.js';
+import { SiblingContextController as SCC} from './Registry.js';
 
 /* 
     Parent class:
@@ -11,7 +11,7 @@ import { SiblingOutputController as SOC} from './Registry.js';
     - Spawn (attach canvas to target)
 */
 
-export const SIBOUTPUT = {
+export const SIBCONTEXT = {
     name: undefined,
     type: 'BarType',
     identifier: undefined,
@@ -36,9 +36,9 @@ export default class Chart {
     constructor( {name, identifier, attach_target, style} ) {
         // From input
         this.identifier = identifier;
-        SIBOUTPUT.name = name;
-        SIBOUTPUT.identifier = identifier;
-        this.sibExists = SOC.retrieve( SIBOUTPUT.identifier ) !== undefined;
+        SIBCONTEXT.name = name;
+        SIBCONTEXT.identifier = identifier;
+        this.sibExists = SCC.retrieve( SIBCONTEXT.identifier ) !== undefined;
         this.target = document.querySelector(attach_target);
         this.style = style;
         // Dynamic build method
@@ -47,7 +47,7 @@ export default class Chart {
 
     //  Methods - Canvas
     _clearCanvas() {
-        SIBOUTPUT.ctx.clearRect( 0, 0, SIBOUTPUT.canvas.width, SIBOUTPUT.canvas.height );
+        SIBCONTEXT.ctx.clearRect( 0, 0, SIBCONTEXT.canvas.width, SIBCONTEXT.canvas.height );
     }
 
     _setSizeCanvas(target){
@@ -56,19 +56,19 @@ export default class Chart {
         const H = this.target.offsetHeight;
         target.width = W;
         target.height = H;
-
-        SIBOUTPUT.CC = {width: W-pad, height: H-pad};
+        
+        SIBCONTEXT.CC = {width: W-pad, height: H-pad};
     }
 
     _bindCanvas(target){
         this.target.appendChild( target );
-        SIBOUTPUT.canvas = document.getElementById( SIBOUTPUT.identifier );
-        SIBOUTPUT.ctx = SIBOUTPUT.canvas.getContext( '2d' );
+        SIBCONTEXT.canvas = document.getElementById( SIBCONTEXT.identifier );
+        SIBCONTEXT.ctx = SIBCONTEXT.canvas.getContext( '2d' );
     }
 
     _createCanvas(shouldRefresh, options) {
         const canvasTarget = ( shouldRefresh === true ) ?
-            SIBOUTPUT.canvas :
+            SIBCONTEXT.canvas :
             document.createElement( 'canvas' );
 
         if(shouldRefresh){
@@ -79,7 +79,7 @@ export default class Chart {
             // Set New Canvas properties
             canvasTarget.style.position = 'relative';
             canvasTarget.style.zIndex = 999;
-            canvasTarget.id = SIBOUTPUT.identifier;
+            canvasTarget.id = SIBCONTEXT.identifier;
             
             // Append to target container
             this._bindCanvas(canvasTarget);            
@@ -88,18 +88,18 @@ export default class Chart {
 
     //  Methods - Draw chart Interface
     _drawOutline(){
-        SIBOUTPUT.ctx.strokeStyle = 'black';
-        SIBOUTPUT.ctx.strokeRect(0,0, SIBOUTPUT.canvas.width, SIBOUTPUT.canvas.height);
+        SIBCONTEXT.ctx.strokeStyle = 'black';
+        SIBCONTEXT.ctx.strokeRect(0,0, SIBCONTEXT.canvas.width, SIBCONTEXT.canvas.height);
     }
 
     _drawTitle(){
         const fontSize = 12;
-        const center = SIBOUTPUT.canvas.width / 2 - ( SIBOUTPUT.ctx.measureText( SIBOUTPUT.name ).width / 2 );
+        const center = SIBCONTEXT.canvas.width / 2 - ( SIBCONTEXT.ctx.measureText( SIBCONTEXT.name ).width / 2 );
         const xPos = center;
         const yPos = fontSize;
-        SIBOUTPUT.ctx.font = `12px Arial`;
-        SIBOUTPUT.ctx.fillStyle = 'black'
-        SIBOUTPUT.ctx.fillText( `${SIBOUTPUT.name}`, xPos, yPos );
+        SIBCONTEXT.ctx.font = `12px Arial`;
+        SIBCONTEXT.ctx.fillStyle = 'black'
+        SIBCONTEXT.ctx.fillText( `${SIBCONTEXT.name}`, xPos, yPos );
     }
 
     _drawInterface(){
@@ -125,10 +125,10 @@ export default class Chart {
 
     //  Method - IF SIBLING EXISTS
     _initSiblingProperties(){
-        const sibling = SOC.retrieve(SIBOUTPUT.identifier);
-        SIBOUTPUT.canvas = document.getElementById(SIBOUTPUT.identifier);
-        SIBOUTPUT.ctx = SIBOUTPUT.canvas.getContext( '2d' );
-        SIBOUTPUT.CC = sibling.CC;
+        const sibling = SCC.retrieve(SIBCONTEXT.identifier);
+        SIBCONTEXT.canvas = document.getElementById(SIBCONTEXT.identifier);
+        SIBCONTEXT.ctx = SIBCONTEXT.canvas.getContext( '2d' );
+        SIBCONTEXT.CC = sibling.CC;
     }
 
     //  Method - FIRST BUILD

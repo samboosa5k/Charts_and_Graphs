@@ -1,7 +1,7 @@
 /* Functional/important imports */
-import { SiblingOutputController as SOC } from '../Registry.js';
+import { SiblingContextController as SCC } from '../Registry.js';
 /* Chart parent -> Specialized import */
-import { SIBOUTPUT } from '../Chart.js';
+import { SIBCONTEXT } from '../Chart.js';
 import BarType from '../BarType.js';
 
 /* 
@@ -21,23 +21,23 @@ export default class Line extends BarType {
 
     //  Methods - SECONDARY
     drawLine( x, y, x2, y2, color ) {
-        SIBOUTPUT.ctx.beginPath();
+        SIBCONTEXT.ctx.beginPath();
         // test
-        SIBOUTPUT.ctx.moveTo(x,y);
-        SIBOUTPUT.ctx.lineTo(x,SIBOUTPUT.CC.height + this.style.padding);
+        SIBCONTEXT.ctx.moveTo(x,y);
+        SIBCONTEXT.ctx.lineTo(x,SIBCONTEXT.CC.height + this.style.padding);
         // real
-        SIBOUTPUT.ctx.moveTo( x, y );
-        SIBOUTPUT.ctx.lineTo(x2,y2);
-        SIBOUTPUT.ctx.stroke();
+        SIBCONTEXT.ctx.moveTo( x, y );
+        SIBCONTEXT.ctx.lineTo(x2,y2);
+        SIBCONTEXT.ctx.stroke();
     }
 
     //  Method - generate BARS
     lineGen() {
-        for(let i=0; i<SIBOUTPUT.coords.length-1; i++){
-            let x = SIBOUTPUT.coords[i][0];
-            let y = SIBOUTPUT.coords[i][1];
-            let x2 = SIBOUTPUT.coords[i+1][0];
-            let y2 = SIBOUTPUT.coords[i+1][1];
+        for(let i=0; i<SIBCONTEXT.coords.length-1; i++){
+            let x = SIBCONTEXT.coords[i][0];
+            let y = SIBCONTEXT.coords[i][1];
+            let x2 = SIBCONTEXT.coords[i+1][0];
+            let y2 = SIBCONTEXT.coords[i+1][1];
             this.drawLine(x,y,x2,y2);
         }      
     }

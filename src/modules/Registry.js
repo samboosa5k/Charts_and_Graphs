@@ -24,15 +24,15 @@ export const ChartController = (()=>{
         be reused/shared to avoid duplicate loops etc.
 */
 
-export const SiblingOutputStorage = [
+export const SiblingContext = [
 
 ];
 
-export const SiblingOutputController = ( () => {
+export const SiblingContextController = ( () => {
     const store = ( outputObj ) => {
-        SiblingOutputStorage.push( outputObj );
+        SiblingContext.push( outputObj );
     }
-    const retrieve = ( identifier ) => SiblingOutputStorage.find( ( outputObj ) => outputObj.identifier === identifier );
+    const retrieve = ( identifier ) => SiblingContext.find( ( outputObj ) => outputObj.identifier === identifier );
 
     return {
         store,
