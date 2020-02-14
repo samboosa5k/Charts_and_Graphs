@@ -4,18 +4,19 @@ import { SiblingContextController as SCC} from './Registry.js';
 import Chart,{SIBCONTEXT} from './Chart.js';
 
 export default class BarType extends Chart {
-    constructor( { name, identifier, attach_target, style, axis_labels, data } ) {
-        super( { name, identifier, attach_target, style} );
+    constructor( inputObj ) {
+        super( inputObj );
+            SIBCONTEXT.type = 'BarType';
             //  Minor variables
-            this.axisLabels = axis_labels;
+            this.axisLabels = inputObj.axis_labels;
             // Resorted/rearranged data from input
-            this.data = data;
-            this.groupArray = [...new Set( data.map( obj => { return obj.group } ) )];    // [...new Set(array)] automatically removes duplicates from array
-            this.keyArray = data.map( obj => { return obj.key } );
-            this.valArray = data.map( obj => { return obj.value } );
+            this.data = inputObj.data;
+            this.groupArray = [...new Set( inputObj.data.map( obj => { return obj.group } ) )];    // [...new Set(array)] automatically removes duplicates from array
+            this.keyArray = inputObj.data.map( obj => { return obj.key } );
+            this.valArray = inputObj.data.map( obj => { return obj.value } );
             //  Important constants
             this.maxVal = Math.max.apply( Math, this.valArray );
-            this.yLabelInc = 20; 
+            this.yLabelInc = 20; // y-Label-increments
     }
 
     //  Methods - shared
@@ -43,7 +44,7 @@ export default class BarType extends Chart {
         const xIncrement = Math.round(SIBCONTEXT.CC.width/(this.data.length));
         const yMax = SIBCONTEXT.CC.height * ( this.maxVal / SIBCONTEXT.grid.yLabelMax );
         //--------Grouped dimensions--------//
-        const isGrouped = this.style.grouped;
+        const isGrouped = SIBCONTEXT.style.grouped;
         const grp = (()=>{
             let nrGrps = this.groupArray.length;
             let nrInGrp = this.data.filter((obj) => obj.group === this.groupArray[0]).length;
@@ -62,14 +63,14 @@ export default class BarType extends Chart {
         for(let i=0;i<this.data.length; i++){
             let mul = ( grp.nrInGrp - ( ( i ) / grp.nrInGrp ) ) % 1 === 0;
             let x;
-            let y = SIBCONTEXT.CC.height + ( this.style.padding ) - ((this.valArray[i]/this.maxVal) * yMax);
+            let y = SIBCONTEXT.CC.height + ( SIBCONTEXT.style.padding ) - ((this.valArray[i]/this.maxVal) * yMax);
 
             //  Group condition
             if(isGrouped){
                 if (mul && i !== 0) grpOffset += grp.gap;
-                x = ( this.style.padding + grp.gap ) + ( grp.xInc * i ) + grpOffset ;
+                x = ( SIBCONTEXT.style.padding + grp.gap ) + ( grp.xInc * i ) + grpOffset ;
             } else {
-                x = ( this.style.padding + xIncrement / 2 ) + ( i * xIncrement );
+                x = ( SIBCONTEXT.style.padding + xIncrement / 2 ) + ( i * xIncrement );
             }
 
         //    console.log( this.data[i] );
@@ -77,7 +78,6 @@ export default class BarType extends Chart {
             coordsTemp.push([x,y]);
         }
         SIBCONTEXT.coords = coordsTemp;
-        console.log(SIBCONTEXT.coords);
     }
 
     drawLabel( x, y, xAlign = undefined, yAlign = undefined, label, rotate = undefined ) {
@@ -116,7 +116,7 @@ export default class BarType extends Chart {
         const yAxisLabel = this.axisLabels.y;
         const h = SIBCONTEXT.canvas.height;
         const w = SIBCONTEXT.canvas.width;
-        const p = this.style.padding / 2;
+        const p = SIBCONTEXT.style.padding / 2;
 
         // yAxisLabel
         this.drawLabel( -h / 2, p, 'center', 'middle', yAxisLabel, -90 );
@@ -130,7 +130,7 @@ export default class BarType extends Chart {
 
     //  Methods - LAYOUT
     drawGrid() {
-        const origin = this.style.padding;
+        const origin = SIBCONTEXT.style.padding;
         const w = SIBCONTEXT.CC.width;
         const h = SIBCONTEXT.CC.height;
 

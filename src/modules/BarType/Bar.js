@@ -9,8 +9,8 @@ import BarType from '../BarType.js';
 */
 
 export default class Bar extends BarType {
-    constructor( { name, identifier, attach_target, style, axis_labels, data} ) {
-        super( { name, identifier, attach_target, style, axis_labels, data} );
+    constructor( inputObj ) {
+        super( inputObj );
         this.buildChartMethod = this.init;
         this.yLabelInc = 20;
     }
@@ -25,8 +25,8 @@ export default class Bar extends BarType {
 
     //  Method - generate BARS
     barGen() {
-        const colorPattern = this.style.color_pattern;
-        const chartColors = this.style.chart_colors;
+        const colorPattern = SIBCONTEXT.style.color_pattern;
+        const chartColors = SIBCONTEXT.style.chart_colors;
         //const maxW = Math.floor((SIBCONTEXT.CC.width / this.data.length));
         const maxW = SIBCONTEXT.coords[1][0] - SIBCONTEXT.coords[0][0];
         const barW = maxW / 1.6;
@@ -37,7 +37,7 @@ export default class Bar extends BarType {
             let x = SIBCONTEXT.coords[i][0];
             let y = SIBCONTEXT.coords[i][1];
             //-------END---------//
-            let barH = SIBCONTEXT.CC.height - (y - this.style.padding);
+            let barH = SIBCONTEXT.CC.height - (y - SIBCONTEXT.style.padding);
             let barLabel = this.keyArray[i];
             let barColor = ( colorPattern === 'grouped' ) ?
                 chartColors[this.groupArray.indexOf(this.data[i].group)] :

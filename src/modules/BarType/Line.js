@@ -9,8 +9,8 @@ import BarType from '../BarType.js';
 */
 
 export default class Line extends BarType {
-    constructor( { name, identifier, attach_target, style, axis_labels, data} ) {
-        super( { name, identifier, attach_target, style, axis_labels, data} );
+    constructor( inputObj ) {
+        super( inputObj );
         this.buildChartMethod = this.init;
         this.maxVal = Math.max.apply( Math, this.valArray );
         this.yLabelInc = 20;
@@ -24,7 +24,7 @@ export default class Line extends BarType {
         SIBCONTEXT.ctx.beginPath();
         // test
         SIBCONTEXT.ctx.moveTo(x,y);
-        SIBCONTEXT.ctx.lineTo(x,SIBCONTEXT.CC.height + this.style.padding);
+        SIBCONTEXT.ctx.lineTo(x,SIBCONTEXT.CC.height + SIBCONTEXT.style.padding);
         // real
         SIBCONTEXT.ctx.moveTo( x, y );
         SIBCONTEXT.ctx.lineTo(x2,y2);

@@ -15,6 +15,8 @@ export const SIBCONTEXT = {
     name: undefined,
     type: 'BarType',
     identifier: undefined,
+    style: undefined,
+    // Canvas
     canvas: undefined,
     ctx: undefined,
     CC: undefined,
@@ -28,19 +30,17 @@ export const SIBCONTEXT = {
         bar: [],
         group: []
     },
-    bars: [],
     coords: []
 }
 
 export default class Chart {
     constructor( {name, identifier, attach_target, style} ) {
-        // From input
-        this.identifier = identifier;
+        // From input -> CONTEXT
         SIBCONTEXT.name = name;
         SIBCONTEXT.identifier = identifier;
+        SIBCONTEXT.style = style;
         this.sibExists = SCC.retrieve( SIBCONTEXT.identifier ) !== undefined;
         this.target = document.querySelector(attach_target);
-        this.style = style;
         // Dynamic build method
         this.buildChartMethod = undefined;
     }
@@ -51,7 +51,7 @@ export default class Chart {
     }
 
     _setSizeCanvas(target){
-        const pad = this.style.padding*2;
+        const pad = SIBCONTEXT.style.padding*2;
         const W = this.target.offsetWidth;
         const H = this.target.offsetHeight;
         target.width = W;
